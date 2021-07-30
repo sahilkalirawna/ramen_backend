@@ -1,5 +1,5 @@
 const { validationResult } = require("express-validator");
-const bcrypt = require("bcryptjs");
+const bcryptd = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { sendEmail } = require("../helper/index");
 const Profile = require("../models/Profile");
@@ -21,7 +21,7 @@ exports.signup = async (req, res, next) => {
   let data = req.body;
   const password = data.password;
   try {
-    const hashedPw = await bcrypt.hash(password, 12);
+    const hashedPw = await bcryptd.hash(password, 12);
     data.password = hashedPw;
 
     const result = await Profile(data).save();
@@ -60,7 +60,7 @@ exports.login = async (req, res, next) => {
     }
     loadedUser = user;
 
-    const isEqual = await bcrypt.compare(password, user.password);
+    const isEqual = await bcryptd.compare(password, user.password);
 
     if (!isEqual) {
       const error = new Error("Wrong Password !");
@@ -181,6 +181,7 @@ exports.updateProfile = async (req, res, next) => {
   userData.Themes = req.body.Themes;
   userData.Skills = req.body.Skills;
   userData.Expertise = req.body.Expertise;
+  userData.lookingforfounder = req.body.lookingforfounder;
 
   const result = await userData.save();
 

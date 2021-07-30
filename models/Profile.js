@@ -29,15 +29,12 @@ const profileSchema = mongoose.Schema({
   Address: {
     city: {
       type: String,
-      required: true,
     },
     state: {
       type: String,
-      required: true,
     },
     country: {
       type: String,
-      required: true,
     },
   },
   Themes: [{ type: ObjectId, ref: "themes" }],

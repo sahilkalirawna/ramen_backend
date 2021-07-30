@@ -10,6 +10,7 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const authRoutes = require("./routes/auth");
 const profileDone = require("./routes/profileRoute");
+const sendMail = require("./routes/SendMail");
 
 // for location path
 const path = require("path");
@@ -44,6 +45,7 @@ app.use(morgan("dev"));
 //Routes
 app.use("/auth", authRoutes);
 app.use(profileDone);
+app.use(sendMail);
 
 // mongoose db connection
 mongoose
