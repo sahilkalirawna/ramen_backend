@@ -27,17 +27,14 @@ exports.sendMail = async (req, res) => {
 
 exports.cofounderActive = async (req, res) => {
   const id = req.params.id;
-  // let data ={
-  //   Timecommit = req.body.Timecommit,
-  //   preference = req.body.preference,
-  //   Copreference = req.body.Copreference
-  // }
   const cofounderId = await Profile.findById(id);
   cofounderId.lookingforfounder = true;
   await cofounderId.save();
   const find = await Cofounder.findById(cofounderId.cofounder);
   console.log(find);
   find.Timecommit = req.body.Timecommit;
+  find.preference = req.body.preference;
+  find.copreference = req.body.copreference;
   const result = await find.save();
   res.status(200).json({ result });
 };

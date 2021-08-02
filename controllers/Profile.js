@@ -8,7 +8,7 @@ const Preference = require("../models/preference");
 const CoPreference = require("../models/preferedcustomer");
 
 //Sending static data of Qualities like themes, skills and expertise
-exports.getQualitiesdata = async (req, res, next) => {
+exports.sendQualitiesdata = async (req, res, next) => {
   let category = [];
   const themes = await Themes.find();
   const skills = await Skills.find();
@@ -38,8 +38,8 @@ exports.getAllData = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
-    const final = data.filter((d) => d._id != req.userId);
-    res.status(200).json({ final });
+    const result = data.filter((d) => d._id != req.userId);
+    res.status(200).json({ message:"Profiles List",success:true,result });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
@@ -52,13 +52,13 @@ exports.getAllData = async (req, res, next) => {
 exports.getUser = async (req, res, next) => {
   const id = req.params.id;
   try {
-    const data = await Profile.findById(id);
-    if (!data) {
+    const result = await Profile.findById(id);
+    if (!result) {
       const error = new Error("User not found");
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ data });
+    res.status(200).json({ message:"Single User Found",success:true,result });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
@@ -67,25 +67,28 @@ exports.getUser = async (req, res, next) => {
   }
 };
 
-//Searching and Filtering
-exports.getSearch = async (req, res, next) => {
-  const { search, Theme, Skill, Expert } = req.body;
-  try {
-    const regex = new RegExp(search, "i");
-    const dataFilter = await Profile.find({
-      name: regex,
-      $or: [
-        { Themes: { $in: Theme } },
-        { Skills: { $in: Skill } },
-        { Expertise: { $in: Expert } },
-      ],
-    });
-    if (!dataFilter) {
+//Searching ,Filtering, Pagination and listofalluser
+exports.getSearchProfile = async (req, res, next) => {
+
+    const { search, Theme, Skill, Expert } = req.body;
+    const { p: page= 1 , l: limit =5} = req.query; 
+   
+    try {
+    let query = {};
+    if (search) query.name = new RegExp(search, "i");
+    if (Theme) query.Themes = { $in: Theme };
+    if (Skill) query.Skills = { $in: Skill };
+    if (Expert) query.Expertise = { $in: Expert };
+
+    const result = await Profile.find(query).skip((parseInt(page) - 1) * limit).limit(parseInt(limit));
+
+    if (result.length == 0) {
       const error = new Error("User not found");
       error.statusCode = 404;
       throw error;
     }
-    res.status(200).json({ dataFilter });
+    res.status(200).json({ message: "filtered data", success: true, result });
+
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
@@ -94,22 +97,3 @@ exports.getSearch = async (req, res, next) => {
   }
 };
 
-//Pagination
-exports.userPaginate = async (req, res, next) => {
-  const limit = parseInt(req.query.limit);
-  const skip = parseInt(req.query.skip);
-  try {
-    const data = await Profile.find({}).skip(skip).limit(limit);
-    if (!dataFilter) {
-      const error = new Error("data is not available");
-      error.statusCode = 404;
-      throw error;
-    }
-    res.status(200).json({ data });
-  } catch (error) {
-    if (!error.statusCode) {
-      error.statusCode = 500;
-    }
-    next(error);
-  }
-};

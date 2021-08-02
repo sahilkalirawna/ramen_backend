@@ -9,18 +9,19 @@ const Cofounder = require("../models/Cofounder");
 // User Signup
 exports.signup = async (req, res, next) => {
   //Validation Error
-  const errors = validationResult(req);
-  console.log(errors);
-  if (!errors.isEmpty()) {
-    let error = new Error("Validation Error");
-    error.statusCode = 422;
-    error.data = errors.array();
-    throw error;
-  }
-
-  let data = req.body;
-  const password = data.password;
   try {
+    const errors = validationResult(req);
+    console.log(errors);
+    if (!errors.isEmpty()) {
+      let error = new Error("Validation Error");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
+    let data = req.body;
+    const password = data.password;
+
     const hashedPw = await bcryptd.hash(password, 12);
     data.password = hashedPw;
 
@@ -33,10 +34,11 @@ exports.signup = async (req, res, next) => {
     await result.save();
     res.status(201).json({
       messgae: "New Profile Created !",
-      userId: result._id,
-      data: done,
+      success:true,
+      userId: result._id
     });
   } catch (error) {
+    console.log("catch error", error);
     if (!error.statusCode) {
       error.statusCode = 500;
     }
@@ -146,13 +148,27 @@ exports.resetPassword = async (req, res, next) => {
       return res.status("401").json({
         error: "Invalid Link!",
       });
-    } else {
-      return res.status("201").json({
-        user,
-      });
-    }
-  });
-};
+    } 
+    const updatedFields = {
+      password: newPassword,
+      resetPasswordLink: "",
+    };
+
+    user = _.extend(user, updatedFields);
+    user.updated = Date.now();
+
+    user.save((err, result) => {
+      if (err) {
+        return res.status(400).json({
+          error: err,
+        });
+      }
+    });
+    res.json({
+      message: `Great! Now you can login with your new password.`,
+    });
+})
+}
 
 //Edit or Update profile
 exports.updateProfile = async (req, res, next) => {
@@ -186,11 +202,13 @@ exports.updateProfile = async (req, res, next) => {
   const result = await userData.save();
 
   coFounderData.Timecommit = req.body.cofounder.Timecommit;
+  coFounderData.Preference = req.body.cofounder.Preference;
+  coFounderData.Copreference = req.body.cofounder.Copreference;
   const done = await coFounderData.save();
 
   res.status(200).json({
     message: "User's Profile Updated !",
     userData: result,
-    cofounder: done,
+    
   });
 };

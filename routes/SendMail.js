@@ -1,10 +1,11 @@
-const express = require("express");
-
-const router = express.Router();
+const { Router } = require("express");
 const SendController = require("../controllers/SendMail");
 const IsAuth = require("../middleware/is-auth");
 
-router.post("/sendMail/:sendId", IsAuth, SendController.sendMail);
-router.post("/cofounder/:id", SendController.cofounderActive);
-
-module.exports = router;
+module.exports = Router()
+.post(
+  "/sendMail/:sendId",
+  IsAuth,
+  SendController.sendMail
+)
+.post("/cofounder/:id", SendController.cofounderActive);

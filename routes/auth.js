@@ -1,14 +1,13 @@
-const express = require("express");
+const { Router } = require("express");
 const { body } = require("express-validator");
 
 const Profile = require("../models/Profile");
 const authController = require("../controllers/Auth");
 const isAuth = require("../middleware/is-auth");
 
-const router = express.Router();
-
+module.exports = Router()
 //User SignUp
-router.post(
+.post(
   "/signup",
   [
     body("email")
@@ -25,18 +24,18 @@ router.post(
     body("password").trim().isLength({ min: 5 }),
   ],
   authController.signup
-);
+)
 
 //User Login
-router.post("/login", authController.login);
+.post("/login", authController.login)
 
 //User Logout
-router.get("/logout", authController.logout);
+.get("/logout", authController.logout)
 
 //Forgot Password & Reset Password
-router.post("/forgetPassword", authController.forget);
-router.put("/resetPassword", authController.resetPassword);
+.post("/forgetPassword", authController.forget)
+.put("/resetPassword", authController.resetPassword)
 
-router.put("/update/:id", authController.updateProfile);
+.put("/update/:id", authController.updateProfile)
 
-module.exports = router;
+
