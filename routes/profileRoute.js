@@ -1,12 +1,10 @@
-const express = require("express");
-const router = express.Router();
+const { Router } = require("express");
 const profileControlller = require("../controllers/Profile");
-const filterdata = require("../middleware/filterData");
-const isAuth = require("../middleware/is-auth");
+// const isAuth = require("../middleware/is-auth");
 
-router.get("/getQualitiesdata", profileControlller.getQualitiesdata);
-router.get("/getAlldata", profileControlller.getAllData);
-router.get("/getUser/:id", profileControlller.getUser);
-router.get("/search", profileControlller.getSearch);
-router.get("/paginate", profileControlller.userPaginate);
-module.exports = router;
+module.exports = Router()
+    .get("/sendQualitiesdata", profileControlller.sendQualitiesdata)
+    .get("/getAlldata", profileControlller.getAllData)
+    .get("/getUser/:id", profileControlller.getUser)
+    .post("/getSearchProfile", profileControlller.getSearchProfile)
+
