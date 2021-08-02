@@ -5,6 +5,9 @@ const { sendEmail } = require("../helper/index");
 const Profile = require("../models/Profile");
 const { token } = require("morgan");
 const Cofounder = require("../models/Cofounder");
+const dotenv = require("dotenv");
+const _ = require("lodash");
+dotenv.config();
 
 // User Signup
 exports.signup = async (req, res, next) => {
@@ -120,13 +123,14 @@ exports.forget = async (req, res) => {
       html: `<p>Please use the following link to reset your password:</p> <a>${process.env.CLIENT_URL}/reset-password/${token}</a>`,
     };
 
-    return user.updateOne({ resetPasswordLink: token }, (err, success) => {
+    return user.updateOne({ resetPasswordLink: token }, async (err, success) => {
       console.log(user);
       if (err) {
         return res.json({ message: err });
       } else {
-        sendEmail(emailData);
+        const data = await sendEmail(emailData);
         return res.status(200).json({
+          data,
           message: `Email has been sent to ${email}. Follow the instructions to reset your password.`,
         });
       }
@@ -140,7 +144,7 @@ exports.forget = async (req, res) => {
 };
 
 exports.resetPassword = async (req, res, next) => {
-  const { resetPasswordLink } = req.body;
+  const { resetPasswordLink,newPassword } = req.body;
 
   Profile.findOne({ resetPasswordLink }, (err, user) => {
     // if err or no user
