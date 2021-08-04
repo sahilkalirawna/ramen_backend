@@ -1,7 +1,7 @@
 {
     "development": {
         "config_id": "development",
-        "node_port": 8080,
+        "node_port": 7070,
         "database": "finder",
         "URI": "mongodb+srv://Nikhil_007:Nikhil071299@cluster0.jnpbg.mongodb.net/finder" },
     "production": {
