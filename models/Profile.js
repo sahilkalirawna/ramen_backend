@@ -39,7 +39,7 @@ const profileSchema = mongoose.Schema({
   },
   Themes: [{ type: ObjectId, ref: "themes" }],
   Skills: [{ type: ObjectId, ref: "skills" }],
-  Expertise: [{ type: ObjectId, ref: "expertise" }],
+  Expertise: [{ type: ObjectId, ref: "expertises" }],
   lookingforfounder: {
     type: Boolean,
   },

@@ -64,7 +64,8 @@ app.use((error, req, res, next) => {
   console.log("global", error);
   const status = error.statusCode || 500;
   const message = error.message;
-  // const data = error.data[0].msg;
+  let data;
+  // if(error.data[0].msg) data = error.data[0].msg;
   res.status(status).json({ message });
 });
 
