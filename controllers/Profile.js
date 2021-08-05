@@ -1,3 +1,6 @@
+const {
+  Types: { ObjectId },
+} = require("mongoose");
 const Profile = require("../models/Profile");
 const Themes = require("../models/Themes");
 const Skills = require("../models/Skills");
@@ -89,21 +92,61 @@ exports.getUser = async (req, res, next) => {
 
 //Searching ,Filtering, Pagination and listofalluser
 exports.getSearchProfile = async (req, res, next) => {
-  const { search, Theme, Skill, Expert } = req.body;
+  const {
+    search,
+    Theme,
+    Skill,
+    Expert,
+    cofounderTimecomit,
+    cofounderPreference,
+    cofounderCopreference,
+  } = req.body;
   const { p: page = 1, l: limit = 5 } = req.query;
 
   try {
     let query = {};
     if (search) query.name = new RegExp(search, "i");
-    if (Theme) query.Themes = { $in: Theme };
-    if (Skill) query.Skills = { $in: Skill };
-    if (Expert) query.Expertise = { $in: Expert };
+    if (Theme) query.Themes = { $in: Theme.map((e) => ObjectId(e)) };
+    if (Skill) query.Skills = { $in: Skill.map((e) => ObjectId(e)) };
+    if (Expert) query.Expertise = { $in: Expert.map((e) => ObjectId(e)) };
+    if (cofounderTimecomit)
+      query["cofounderData.Timecommit"] = {
+        $in: cofounderTimecomit.map((e) => ObjectId(e)),
+      };
+    if (cofounderPreference)
+      query["cofounderData.preference"] = {
+        $in: cofounderPreference.map((e) => ObjectId(e)),
+      };
+    if (cofounderCopreference)
+      query["cofounderData.preferedcustomer"] = {
+        $in: cofounderCopreference.map((e) => ObjectId(e)),
+      };
+
     console.log(query);
-    const result = await Profile.find(query)
-      .populate("Themes", "name")
-      .populate("Skills", "name");
-    // .skip((parseInt(page) - 1) * limit)
-    // .limit(parseInt(limit));
+
+    let aggregatePipeline = [
+      {
+        $lookup: {
+          from: "cofounders",
+          localField: "_id",
+          foreignField: "userId",
+          as: "cofounderData",
+        },
+      },
+      {
+        $unwind: {
+          path: "$cofounderData",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ];
+
+    if (Object.keys(query).length) {
+      aggregatePipeline.push({ $match: query });
+    }
+    console.log(aggregatePipeline);
+
+    const result = await Profile.aggregate(aggregatePipeline);
 
     if (result.length == 0) {
       const error = new Error("User not found");
@@ -117,4 +160,18 @@ exports.getSearchProfile = async (req, res, next) => {
     }
     next(error);
   }
+};
+
+exports.aggregateProfile = async (req, res, next) => {
+  console.log("Working...");
+  Profile.aggregate().exec((err, results) => {
+    if (err) {
+      res.send(err);
+    }
+    if (results) {
+      res.send({
+        data: results,
+      });
+    }
+  });
 };
