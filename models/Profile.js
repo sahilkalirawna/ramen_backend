@@ -42,6 +42,7 @@ const profileSchema = mongoose.Schema({
   Expertise: [{ type: ObjectId, ref: "expertises" }],
   lookingforfounder: {
     type: Boolean,
+    default: false,
   },
   cofounder: { type: ObjectId, ref: "cofounders" },
 });

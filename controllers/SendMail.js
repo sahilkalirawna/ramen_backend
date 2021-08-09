@@ -34,7 +34,15 @@ exports.cofounderActive = async (req, res) => {
   console.log(find);
   find.Timecommit = req.body.Timecommit;
   find.preference = req.body.preference;
-  find.copreference = req.body.copreference;
+  find.preferedcustomer = req.body.copreference;
   const result = await find.save();
-  res.status(200).json({ result });
+
+  const aggregatePipeline = [{}];
+  Cofounder.aggregate(aggregatePipeline);
+
+  res.status(200).json({
+    message: "Profile Activated for Cofounder finding ...",
+    success: true,
+    result,
+  });
 };

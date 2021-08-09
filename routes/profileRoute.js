@@ -6,5 +6,4 @@ module.exports = Router()
   .get("/sendQualitiesdata", profileControlller.sendQualitiesdata)
   .get("/getAlldata", profileControlller.getAllData)
   .get("/getUser/:id", profileControlller.getUser)
-  .post("/getSearchProfile", profileControlller.getSearchProfile)
-  .post("/getAgg", profileControlller.aggregateProfile);
+  .post("/getSearchProfile", profileControlller.getSearchProfile);
