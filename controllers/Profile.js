@@ -19,7 +19,7 @@ exports.sendQualitiesdata = async (req, res, next) => {
   const timecommit = await TimeCommit.find();
   const preference = await Preference.find();
   const copreference = await CoPreference.find();
-  const lookingForFounder = { name: "Lookin for cofounder", id: 0 };
+  const lookingForFounder = { name: "Looking for cofounder", id: 0 };
   // category = [
   //   { default: "Lookin for cofounder", id: 0 },
   //   { themes },
@@ -73,6 +73,12 @@ exports.getUser = async (req, res, next) => {
       .populate("Themes", "name")
       .populate("Skills", "name")
       .populate("Expertise", "name");
+
+    const data = await Cofounder.findById(result.cofounder)
+      .populate("Timecommit", "name")
+      .populate("preference", "name")
+      .populate("preferedcustomer", "name");
+
     if (!result) {
       const error = new Error("User not found");
       error.statusCode = 404;
@@ -80,7 +86,7 @@ exports.getUser = async (req, res, next) => {
     }
     res
       .status(200)
-      .json({ message: "Single User Found", success: true, result });
+      .json({ message: "Single User Found", success: true, result, data });
   } catch (error) {
     console.log(error);
     if (!error.statusCode) {
@@ -100,11 +106,13 @@ exports.getSearchProfile = async (req, res, next) => {
     cofounderTimecomit,
     cofounderPreference,
     cofounderCopreference,
+    looking,
   } = req.body;
   const { p: page = 1, l: limit = 5 } = req.query;
 
   try {
     let query = {};
+    if (looking) query.lookingforfounder = looking;
     if (search) query.name = new RegExp(search, "i");
     if (Theme) query.Themes = { $in: Theme.map((e) => ObjectId(e)) };
     if (Skill) query.Skills = { $in: Skill.map((e) => ObjectId(e)) };
@@ -143,16 +151,50 @@ exports.getSearchProfile = async (req, res, next) => {
 
     if (Object.keys(query).length) {
       aggregatePipeline.push({ $match: query });
+      aggregatePipeline.push({
+        $lookup: {
+          from: "themes",
+          localField: "Themes",
+          foreignField: "_id",
+          as: "Themes",
+        },
+      });
+      aggregatePipeline.push({
+        $lookup: {
+          from: "skills",
+          localField: "Skills",
+          foreignField: "_id",
+          as: "Skills",
+        },
+      });
+    } else {
+      aggregatePipeline.push({
+        $lookup: {
+          from: "themes",
+          localField: "Themes",
+          foreignField: "_id",
+          as: "Themes",
+        },
+      });
+      aggregatePipeline.push({
+        $lookup: {
+          from: "skills",
+          localField: "Skills",
+          foreignField: "_id",
+          as: "Skills",
+        },
+      });
     }
+
     console.log(aggregatePipeline);
 
     const result = await Profile.aggregate(aggregatePipeline);
-
     if (result.length == 0) {
       const error = new Error("User not found");
       error.statusCode = 404;
       throw error;
     }
+    console.log(result);
     res.status(200).json({ message: "filtered data", success: true, result });
   } catch (error) {
     if (!error.statusCode) {
@@ -160,18 +202,4 @@ exports.getSearchProfile = async (req, res, next) => {
     }
     next(error);
   }
-};
-
-exports.aggregateProfile = async (req, res, next) => {
-  console.log("Working...");
-  Profile.aggregate().exec((err, results) => {
-    if (err) {
-      res.send(err);
-    }
-    if (results) {
-      res.send({
-        data: results,
-      });
-    }
-  });
 };
