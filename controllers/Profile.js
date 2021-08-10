@@ -62,12 +62,12 @@ exports.getAllData = async (req, res, next) => {
 exports.getUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    if (id.length < 24) {
-      const error = new Error("Invalid User or User not Found");
-      console.log(error);
-      error.statusCode = 404;
-      throw error;
-    }
+    // if (id.length < 24) {
+    //   const error = new Error("Invalid User or User not Found");
+    //   console.log(error);
+    //   error.statusCode = 404;
+    //   throw error;
+    // }
 
     const result = await Profile.findById(id)
       .populate("Themes", "name")
@@ -108,7 +108,7 @@ exports.getSearchProfile = async (req, res, next) => {
     cofounderCopreference,
     looking,
   } = req.body;
-  const { p: page = 1, l: limit = 5 } = req.query;
+  // const { p: page = 1, l: limit = 5 } = req.query;
 
   try {
     let query = {};
@@ -167,6 +167,15 @@ exports.getSearchProfile = async (req, res, next) => {
           as: "Skills",
         },
       });
+      aggregatePipeline.push({
+        $lookup: {
+          from: "expertises",
+          localField: "Expertise",
+          foreignField: "_id",
+          as: "Expertise",
+        },
+      });
+      
     } else {
       aggregatePipeline.push({
         $lookup: {
@@ -182,6 +191,14 @@ exports.getSearchProfile = async (req, res, next) => {
           localField: "Skills",
           foreignField: "_id",
           as: "Skills",
+        },
+      });
+      aggregatePipeline.push({
+        $lookup: {
+          from: "expertises",
+          localField: "Expertise",
+          foreignField: "_id",
+          as: "Expertise",
         },
       });
     }

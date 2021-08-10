@@ -24,6 +24,7 @@ exports.signup = async (req, res, next) => {
     }
 
     let data = req.body;
+    console.log()
     const password = data.password;
 
     const hashedPw = await bcryptd.hash(password, 12);
@@ -192,18 +193,19 @@ exports.updateProfile = async (req, res, next) => {
   }
 
   userData.name = req.body.name;
-  // userData.email = req.body.email;
-  //userData.userimg = req.body.userimg;
-  //userData.background = req.body.background;
-  // userData.ideatostart = req.body.ideatostart;
-  // userData.Address = {
-  //   city: req.body.Address.city,
-  //   state: req.body.Address.state,
-  //   country: req.body.Address.country,
-  // };
-  // userData.Themes = req.body.Themes;
-  // userData.Skills = req.body.Skills;
-  // userData.Expertise = req.body.Expertise;
+  userData.email = req.body.email;
+  userData.Address = {
+    city: req.body.city,
+    state: req.body.state,
+    country: req.body.country,
+  };
+  userData.background = req.body.background;
+  userData.ideatostart = req.body.ideatostart;
+  userData.userimg = req.body.userimg;
+  
+  userData.Themes = req.body.Themes;
+  userData.Skills = req.body.Skills;
+  userData.Expertise = req.body.Expertise;
   // userData.lookingforfounder = req.body.lookingforfounder;
 
   const result = await userData.save();
