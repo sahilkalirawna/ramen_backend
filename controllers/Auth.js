@@ -86,6 +86,7 @@ exports.login = async (req, res, next) => {
     res.status(200).json({
       token: token,
       userId: loadedUser._id.toString(),
+      userName: loadedUser.name,
     });
   } catch (error) {
     if (!error.statusCode) {
@@ -192,26 +193,20 @@ exports.updateProfile = async (req, res, next) => {
   }
 
   userData.name = req.body.name;
-  // userData.email = req.body.email;
-  //userData.userimg = req.body.userimg;
-  //userData.background = req.body.background;
-  // userData.ideatostart = req.body.ideatostart;
-  // userData.Address = {
-  //   city: req.body.Address.city,
-  //   state: req.body.Address.state,
-  //   country: req.body.Address.country,
-  // };
-  // userData.Themes = req.body.Themes;
-  // userData.Skills = req.body.Skills;
-  // userData.Expertise = req.body.Expertise;
-  // userData.lookingforfounder = req.body.lookingforfounder;
+  userData.email = req.body.email;
+  userData.userimg = req.body.userimg;
+  userData.background = req.body.background;
+  userData.ideatostart = req.body.ideatostart;
+  userData.Address = {
+    city: req.body.city,
+    state: req.body.state,
+    country: req.body.country,
+  };
+  userData.Themes = req.body.Themes;
+  userData.Skills = req.body.Skills;
+  userData.Expertise = req.body.Expertise;
 
   const result = await userData.save();
-
-  // coFounderData.Timecommit = req.body.cofounder.Timecommit;
-  // coFounderData.Preference = req.body.cofounder.Preference;
-  // coFounderData.Copreference = req.body.cofounder.Copreference;
-  const done = await coFounderData.save();
 
   res.status(200).json({
     message: "User's Profile Updated !",

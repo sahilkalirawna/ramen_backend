@@ -28,21 +28,21 @@ exports.sendMail = async (req, res) => {
 exports.cofounderActive = async (req, res) => {
   const id = req.params.id;
   const cofounderId = await Profile.findById(id);
+  const { Timecommit, preference, copreference } = req.body;
   cofounderId.lookingforfounder = true;
   await cofounderId.save();
   const find = await Cofounder.findById(cofounderId.cofounder);
   console.log(find);
-  find.Timecommit = req.body.Timecommit;
-  find.preference = req.body.preference;
-  find.preferedcustomer = req.body.copreference;
+  find.Timecommit = Timecommit;
+  find.preference = copreference;
+  find.preferedcustomer = preference;
   const result = await find.save();
 
-  const aggregatePipeline = [{}];
-  Cofounder.aggregate(aggregatePipeline);
+  // const aggregatePipeline = [{}];
+  // Cofounder.aggregate(aggregatePipeline);
 
   res.status(200).json({
     message: "Profile Activated for Cofounder finding ...",
     success: true,
-    result,
   });
 };
