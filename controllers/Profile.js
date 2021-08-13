@@ -62,12 +62,12 @@ exports.getAllData = async (req, res, next) => {
 exports.getUser = async (req, res, next) => {
   try {
     const id = req.params.id;
-    if (id.length < 24) {
-      const error = new Error("Invalid User or User not Found");
-      console.log(error);
-      error.statusCode = 404;
-      throw error;
-    }
+    // if (id.length < 24) {
+    //   const error = new Error("Invalid User or User not Found");
+    //   console.log(error);
+    //   error.statusCode = 404;
+    //   throw error;
+    // }
 
     const result = await Profile.findById(id)
       .populate("Themes", "name")
